@@ -4,37 +4,53 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Barryvdh\DomPDF\Facade\Pdf;
+use App\Models\UserData;
 
 class PDFController extends Controller
 {
-    // Download PDF
-    public function generatePDF()
+    // Show users + search
+    public function index(Request $request)
     {
-        $data = [
-            'title'  => 'Laravel 12 DomPDF Example',
-            'date'   => date('d/m/Y'),
-            'name'   => 'Demo User',
-            'course' => 'Laravel PDF Generation'
-        ];
+        $query = UserData::query();
 
-        $pdf = Pdf::loadView('pdf.example', $data);
+        if ($request->search) {
+            $query->where('name', 'like', '%' . $request->search . '%')
+                ->orwhere('course', 'like', '%' . $request->search . '%')
+                ->orwhere('email', 'like', '%' . $request->search . '%');
+        }
 
-        return $pdf->download('laravel12-dompdf.pdf');
+        $users = $query->latest()->get();
+
+        return view('welcome-pdf', compact('users'));
     }
 
-    // Stream PDF in browser
+    // Download all users PDF
+    public function generatePDF()
+    {
+        $users = UserData::all();
+
+        $pdf = Pdf::loadView('pdf.example', compact('users'));
+
+        return $pdf->download('users.pdf');
+    }
+
+    // Stream PDF
     public function streamPDF()
-{
-    $data = [
-        'title'  => 'Stream PDF Example',
-        'date'   => date('d/m/Y'),
-        'name'   => 'Demo User',
-        'course' => 'Laravel PDF Generation'
-    ];
+    {
+        $users = UserData::all();
 
-    $pdf = Pdf::loadView('pdf.example', $data);
+        $pdf = Pdf::loadView('pdf.example', compact('users'));
 
-    return $pdf->stream('preview.pdf');
-}
+        return $pdf->stream('users.pdf');
+    }
 
+    // Bulk PDF (selected users)
+    public function bulkPDF(Request $request)
+    {
+        $users = UserData::whereIn('id', $request->ids)->get();
+
+        $pdf = Pdf::loadView('pdf.example', compact('users'));
+
+        return $pdf->download('selected-users.pdf');
+    }
 }

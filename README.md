@@ -287,4 +287,7 @@ PHP_Laravel12_DomPDF
 ------------------------------------------------------------------------
 
 Your PHP_Laravel12_DomPDF Project is now ready!
+<<<<<<< HEAD
 
+=======
+>>>>>>> development
