@@ -30,7 +30,6 @@
             margin-bottom: 25px;
         }
 
-        /* SEARCH */
         .search-box {
             margin-bottom: 20px;
         }
@@ -66,7 +65,6 @@
             background: #2779bd;
         }
 
-        /* ACTION BUTTONS */
         .actions {
             display: flex;
             justify-content: center;
@@ -90,7 +88,6 @@
             background: #6c757d;
         }
 
-        /* TABLE */
         table {
             width: 100%;
             border-collapse: collapse;
@@ -117,7 +114,6 @@
             background: #e9f3ff;
         }
 
-        /* BULK BUTTON */
         .bulk-btn {
             margin-top: 15px;
             background: #e3342f;
@@ -139,7 +135,12 @@
 
             <h1>User Management</h1>
 
-            <!-- 🔍 SEARCH -->
+            @if(session('success'))
+                <div style="color: green; font-weight: bold; margin-bottom: 20px; text-align: center; background: #e6ffed; padding: 10px; border-radius: 5px;">
+                    {{ session('success') }}
+                </div>
+            @endif
+
             <form method="GET" class="search-box">
                 <div class="search-group">
                     <input type="text" name="search" placeholder="Search user...">
@@ -147,13 +148,11 @@
                 </div>
             </form>
 
-            <!-- 📄 ACTION BUTTONS -->
             <div class="actions">
-                <a href="/download-pdf" class="btn btn-download">Download PDF</a>
-                <a href="/stream-pdf" target="_blank" class="btn btn-preview">Preview PDF</a>
+                <a href="/download-pdf" class="btn btn-download">Download All PDF</a>
+                <a href="/stream-pdf" target="_blank" class="btn btn-preview">Preview All PDF</a>
             </div>
 
-            <!-- 📊 TABLE -->
             <form method="POST" action="/bulk-pdf">
                 @csrf
 
@@ -163,6 +162,7 @@
                         <th>Name</th>
                         <th>Email</th>
                         <th>Course</th>
+                        <th>Dynamic Actions</th>
                     </tr>
 
                     @foreach($users as $user)
@@ -173,6 +173,24 @@
                             <td>{{ $user->name }}</td>
                             <td>{{ $user->email }}</td>
                             <td>{{ $user->course }}</td>
+                            <td>
+                                <div style="display: flex; gap: 8px;">
+                                    <a href="{{ route('pdf.dynamic', ['id' => $user->id, 'action' => 'preview']) }}" 
+                                       style="padding: 6px 12px; background: #007bff; color: white; text-decoration: none; border-radius: 4px; font-size: 12px;">
+                                       👁️ Preview
+                                    </a>
+
+                                    <a href="{{ route('pdf.dynamic', ['id' => $user->id, 'action' => 'download']) }}" 
+                                       style="padding: 6px 12px; background: #28a745; color: white; text-decoration: none; border-radius: 4px; font-size: 12px;">
+                                       ⬇️ Download
+                                    </a>
+
+                                    <a href="{{ route('pdf.email', ['id' => $user->id]) }}" 
+                                       style="padding: 6px 12px; background: #dc3545; color: white; text-decoration: none; border-radius: 4px; font-size: 12px;">
+                                       📧 Email
+                                    </a>
+                                </div>
+                            </td>
                         </tr>
                     @endforeach
                 </table>
